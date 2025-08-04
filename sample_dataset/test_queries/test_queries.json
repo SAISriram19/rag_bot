@@ -1,0 +1,132 @@
+[
+  {
+    "id": "factual_001",
+    "type": "factual",
+    "query": "What is the base URL for the REST API?",
+    "expected_sources": ["rest_api_reference.md"],
+    "expected_answer_contains": ["https://api.example.com/v1"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "factual_002", 
+    "type": "factual",
+    "query": "What are the available user statuses in the system?",
+    "expected_sources": ["rest_api_reference.md", "python_sdk_reference.md"],
+    "expected_answer_contains": ["active", "inactive", "pending", "suspended"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "factual_003",
+    "type": "factual", 
+    "query": "What HTTP status codes does the API use for errors?",
+    "expected_sources": ["rest_api_reference.md"],
+    "expected_answer_contains": ["400", "401", "403", "404", "429", "500"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "technical_001",
+    "type": "technical",
+    "query": "How do I create a new user using the Python SDK?",
+    "expected_sources": ["python_sdk_reference.md"],
+    "expected_answer_contains": ["client.users.create", "email", "name", "password"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "technical_002",
+    "type": "technical",
+    "query": "What is the proper way to handle rate limiting errors in the SDK?",
+    "expected_sources": ["python_sdk_reference.md"],
+    "expected_answer_contains": ["RateLimitError", "retry_after", "except"],
+    "difficulty": "hard"
+  },
+  {
+    "id": "technical_003",
+    "type": "technical",
+    "query": "How do I configure connection pooling for the database?",
+    "expected_sources": ["advanced_configuration.md"],
+    "expected_answer_contains": ["pool_size", "max_overflow", "QueuePool", "create_engine"],
+    "difficulty": "hard"
+  },
+  {
+    "id": "architecture_001",
+    "type": "architecture",
+    "query": "What architectural pattern does the Project Service use?",
+    "expected_sources": ["architecture_overview.md"],
+    "expected_answer_contains": ["Clean Architecture", "CQRS"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "architecture_002",
+    "type": "architecture", 
+    "query": "What are the main components in the system architecture?",
+    "expected_sources": ["architecture_overview.md"],
+    "expected_answer_contains": ["API Gateway", "Auth Service", "User Service", "Project Service"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "configuration_001",
+    "type": "configuration",
+    "query": "How do I set up Redis Sentinel for high availability?",
+    "expected_sources": ["advanced_configuration.md"],
+    "expected_answer_contains": ["Sentinel", "sentinels", "service_name", "mymaster"],
+    "difficulty": "hard"
+  },
+  {
+    "id": "getting_started_001",
+    "type": "tutorial",
+    "query": "What are the prerequisites for installing the system?",
+    "expected_sources": ["getting_started.md"],
+    "expected_answer_contains": ["Python 3.8", "pip", "Git"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "getting_started_002",
+    "type": "tutorial",
+    "query": "How do I create a virtual environment for the project?",
+    "expected_sources": ["getting_started.md"],
+    "expected_answer_contains": ["python -m venv", "venv", "activate"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "follow_up_001",
+    "type": "follow_up",
+    "query": "What is the rate limit for API requests?",
+    "context": "Previous question about API usage",
+    "expected_sources": ["rest_api_reference.md"],
+    "expected_answer_contains": ["1000 requests per hour"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "follow_up_002",
+    "type": "follow_up", 
+    "query": "How do I check the remaining rate limit?",
+    "context": "Following up on rate limiting question",
+    "expected_sources": ["rest_api_reference.md"],
+    "expected_answer_contains": ["X-RateLimit-Remaining", "headers"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "code_example_001",
+    "type": "code_example",
+    "query": "Show me an example of creating a project using GraphQL",
+    "expected_sources": ["graphql_schema.md"],
+    "expected_answer_contains": ["mutation", "createProject", "input"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "troubleshooting_001",
+    "type": "troubleshooting",
+    "query": "What should I do if I get a 401 Unauthorized error?",
+    "expected_sources": ["getting_started.md", "python_sdk_reference.md"],
+    "expected_answer_contains": ["API key", "Authorization", "Bearer"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "complex_001",
+    "type": "complex",
+    "query": "How do I implement multi-level caching with Redis and local cache?",
+    "expected_sources": ["advanced_configuration.md"],
+    "expected_answer_contains": ["CacheService", "local_cache", "redis", "multi-level"],
+    "difficulty": "hard"
+  }
+]
