@@ -1,0 +1,125 @@
+/* Modern, clean styling */
+.gradio-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    min-height: 100vh;
+}
+
+.main-header {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    border-radius: 20px !important;
+    padding: 30px !important;
+    margin: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.chat-container {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    border-radius: 20px !important;
+    padding: 20px !important;
+    margin: 10px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.upload-section {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(10px) !important;
+    border-radius: 15px !important;
+    padding: 20px !important;
+    margin: 10px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.status-panel {
+    background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%) !important;
+    color: white !important;
+    border-radius: 15px !important;
+    padding: 20px !important;
+    margin: 10px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+.gr-button {
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%) !important;
+    border: none !important;
+    border-radius: 25px !important;
+    color: white !important;
+    font-weight: 600 !important;
+    padding: 12px 24px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.gr-button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+.gr-textbox, .gr-dropdown {
+    border-radius: 15px !important;
+    border: 2px solid rgba(102, 126, 234, 0.3) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(5px) !important;
+}
+
+.gr-textbox:focus, .gr-dropdown:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+}
+
+.gr-file {
+    border: 2px dashed #667eea !important;
+    border-radius: 15px !important;
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(5px) !important;
+}
+
+.gr-chatbot {
+    border-radius: 15px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+/* Message styling */
+.message {
+    border-radius: 15px !important;
+    padding: 15px !important;
+    margin: 10px 0 !important;
+    backdrop-filter: blur(5px) !important;
+}
+
+.message.user {
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    margin-left: 20% !important;
+}
+
+.message.bot {
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: #2c3e50 !important;
+    margin-right: 20% !important;
+    border: 1px solid rgba(102, 126, 234, 0.2) !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.gradio-container > * {
+    animation: fadeIn 0.6s ease-out !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .main-header, .chat-container, .upload-section {
+        margin: 5px !important;
+        padding: 15px !important;
+    }
+}

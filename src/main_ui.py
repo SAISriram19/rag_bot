@@ -10,12 +10,10 @@ import os
 import time
 import json
 import tempfile
+import logging
 from pathlib import Path
 from datetime import datetime
 from typing import List, Tuple, Optional, Dict, Any
-
-# Add src to path
-sys.path.append('src')
 
 # Import core services
 try:
@@ -28,12 +26,19 @@ try:
     from services.retriever import Retriever
     from services.response_generator import ResponseGenerator
     from services.model_manager import ModelManager
+    from services.logging_config import get_logging_manager
     from models.data_models import QueryResponse
     from config import AppConfig
 except ImportError as e:
-    print(f"Import error: {e}")
-    print("Please ensure all dependencies are installed: pip install -r requirements.txt")
+    logging.basicConfig(level=logging.INFO)
+    logging.error(f"Import error: {e}")
+    logging.error("Please ensure all dependencies are installed: pip install -r requirements.txt")
     sys.exit(1)
+
+# Setup logging
+logger = logging.getLogger(__name__)
+logging_manager = get_logging_manager()
+
 
 class RAGBotApp:
     """Main RAG Bot Application with beautiful UI"""
@@ -68,11 +73,11 @@ class RAGBotApp:
                 )
                 self.llm_available = True
             except Exception as e:
-                print(f"LLM components not available: {e}")
+                logger.warning(f"LLM components not available: {e}")
                 self.llm_available = False
                 
         except Exception as e:
-            print(f"Failed to initialize components: {e}")
+            logger.error(f"Failed to initialize components: {e}", exc_info=True)
             raise
     
     def get_system_status(self) -> str:
@@ -148,14 +153,16 @@ class RAGBotApp:
         
         return "\n".join(file_list)
     
-    def process_query(self, query: str, history: List) -> Tuple[List, str]:
+    def process_query(self, query: str, history: List) -> Tuple[List, str, str]:
         """Process user query and return response"""
         if not query.strip():
-            return history, ""
+            return history, "", "No query entered."
         
         # Add user message to history
         history.append([query, None])
         
+        source_context = "No sources found for this query."
+
         try:
             if not self.llm_available:
                 # Simple response without LLM
@@ -175,9 +182,18 @@ class RAGBotApp:
                 
                 if query_response.sources:
                     response += "\n\n📖 **Sources:**\n"
+                    source_context_parts = ["**📚 Relevant Sources:**\n\n"]
                     for i, source in enumerate(query_response.sources[:3], 1):
                         source_name = source.metadata.get('filename', 'Unknown')
                         response += f"{i}. {source_name}\n"
+
+                        # Truncate long content
+                        content = source.page_content
+                        if len(content) > 250:
+                            content = content[:250] + "..."
+
+                        source_context_parts.append(f'**[{i}] {source_name}**\n\n---\n\n{content}\n\n')
+                    source_context = "".join(source_context_parts)
                 
                 # Add confidence and timing info
                 response += f"\n⚡ *Response time: {query_response.processing_time:.2f}s*"
@@ -188,7 +204,7 @@ class RAGBotApp:
         # Update history with response
         history[-1][1] = response
         
-        return history, ""
+        return history, "", source_context
     
     def clear_conversation(self) -> Tuple[List, str]:
         """Clear conversation history"""
@@ -225,135 +241,15 @@ class RAGBotApp:
     def create_interface(self) -> gr.Blocks:
         """Create the beautiful Gradio interface"""
         
-        # Modern CSS styling
-        css = """
-        /* Modern, clean styling */
-        .gradio-container {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-            min-height: 100vh;
-        }
-        
-        .main-header {
-            background: rgba(255, 255, 255, 0.95) !important;
-            backdrop-filter: blur(10px) !important;
-            border-radius: 20px !important;
-            padding: 30px !important;
-            margin: 20px !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        }
-        
-        .chat-container {
-            background: rgba(255, 255, 255, 0.95) !important;
-            backdrop-filter: blur(10px) !important;
-            border-radius: 20px !important;
-            padding: 20px !important;
-            margin: 10px !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        }
-        
-        .upload-section {
-            background: rgba(255, 255, 255, 0.9) !important;
-            backdrop-filter: blur(10px) !important;
-            border-radius: 15px !important;
-            padding: 20px !important;
-            margin: 10px !important;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
-        }
-        
-        .status-panel {
-            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%) !important;
-            color: white !important;
-            border-radius: 15px !important;
-            padding: 20px !important;
-            margin: 10px !important;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
-        }
-        
-        .gr-button {
-            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%) !important;
-            border: none !important;
-            border-radius: 25px !important;
-            color: white !important;
-            font-weight: 600 !important;
-            padding: 12px 24px !important;
-            transition: all 0.3s ease !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
-        }
-        
-        .gr-button:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
-        }
-        
-        .gr-textbox, .gr-dropdown {
-            border-radius: 15px !important;
-            border: 2px solid rgba(102, 126, 234, 0.3) !important;
-            background: rgba(255, 255, 255, 0.9) !important;
-            backdrop-filter: blur(5px) !important;
-        }
-        
-        .gr-textbox:focus, .gr-dropdown:focus {
-            border-color: #667eea !important;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
-        }
-        
-        .gr-file {
-            border: 2px dashed #667eea !important;
-            border-radius: 15px !important;
-            background: rgba(255, 255, 255, 0.8) !important;
-            backdrop-filter: blur(5px) !important;
-        }
-        
-        .gr-chatbot {
-            border-radius: 15px !important;
-            background: rgba(255, 255, 255, 0.95) !important;
-            backdrop-filter: blur(10px) !important;
-        }
-        
-        /* Message styling */
-        .message {
-            border-radius: 15px !important;
-            padding: 15px !important;
-            margin: 10px 0 !important;
-            backdrop-filter: blur(5px) !important;
-        }
-        
-        .message.user {
-            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%) !important;
-            color: white !important;
-            margin-left: 20% !important;
-        }
-        
-        .message.bot {
-            background: rgba(255, 255, 255, 0.9) !important;
-            color: #2c3e50 !important;
-            margin-right: 20% !important;
-            border: 1px solid rgba(102, 126, 234, 0.2) !important;
-        }
-        
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .gradio-container > * {
-            animation: fadeIn 0.6s ease-out !important;
-        }
-        
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .main-header, .chat-container, .upload-section {
-                margin: 5px !important;
-                padding: 15px !important;
-            }
-        }
-        """
-        
+        # Load CSS from file
+        css_path = Path(__file__).parent / "ui/style.css"
+        try:
+            with open(css_path, "r", encoding="utf-8") as f:
+                css = f.read()
+        except FileNotFoundError:
+            logger.warning("style.css not found, using default styles.")
+            css = None
+
         # Create the interface
         with gr.Blocks(
             css=css,
@@ -451,6 +347,14 @@ class RAGBotApp:
                             value=self.get_file_list(),
                             label="Uploaded Files"
                         )
+
+                    # Source context
+                    with gr.Group(elem_classes=["upload-section"]):
+                        gr.Markdown("## 📚 Source Context")
+                        source_context_display = gr.Markdown(
+                            value="Source context will appear here.",
+                            label="Source Context"
+                        )
             
             # Example questions section (initially hidden)
             with gr.Row(visible=False) as examples_row:
@@ -480,13 +384,13 @@ class RAGBotApp:
             send_btn.click(
                 self.process_query,
                 inputs=[query_input, chatbot],
-                outputs=[chatbot, query_input]
+                outputs=[chatbot, query_input, source_context_display]
             )
             
             query_input.submit(
                 self.process_query,
                 inputs=[query_input, chatbot],
-                outputs=[chatbot, query_input]
+                outputs=[chatbot, query_input, source_context_display]
             )
             
             clear_btn.click(
@@ -536,7 +440,7 @@ class RAGBotApp:
 
 def main():
     """Main function to run the RAG Bot"""
-    print("🚀 Starting Beautiful RAG Bot...")
+    logger.info("🚀 Starting Beautiful RAG Bot...")
     
     try:
         # Initialize the app
@@ -545,10 +449,10 @@ def main():
         # Create and launch the interface
         interface = app.create_interface()
         
-        print("✅ RAG Bot initialized successfully!")
-        print("🌐 Launching web interface...")
-        print("📍 URL: http://localhost:7860")
-        print("⏹️ Press Ctrl+C to stop")
+        logger.info("✅ RAG Bot initialized successfully!")
+        logger.info("🌐 Launching web interface...")
+        logger.info("📍 URL: http://localhost:7860")
+        logger.info("⏹️ Press Ctrl+C to stop")
         
         interface.launch(
             server_name="0.0.0.0",
@@ -562,11 +466,11 @@ def main():
         )
         
     except KeyboardInterrupt:
-        print("\n👋 Shutting down RAG Bot...")
+        logger.info("\n👋 Shutting down RAG Bot...")
     except Exception as e:
-        print(f"❌ Error starting RAG Bot: {e}")
-        print("💡 Make sure all dependencies are installed: pip install -r requirements.txt")
-        print("💡 Ensure Ollama is running: ollama serve")
+        logger.error(f"❌ Error starting RAG Bot: {e}", exc_info=True)
+        logger.error("💡 Make sure all dependencies are installed: pip install -r requirements.txt")
+        logger.error("💡 Ensure Ollama is running: ollama serve")
 
 if __name__ == "__main__":
     main()
