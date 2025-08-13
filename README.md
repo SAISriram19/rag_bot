@@ -38,11 +38,9 @@ ollama pull llama3:latest
 
 ### 3. Run the App
 ```bash
-# Main Gradio interface (recommended)
-python src/ui/simple_interface.py
-
-# Alternative Streamlit interface
-python app.py
+# Main Gradio interface
+# Run from the root directory
+python -m src.main_ui
 
 # Performance monitoring dashboard
 python src/ui/performance_dashboard.py
@@ -72,8 +70,9 @@ Edit `.env` file to customize:
 ```
 rag_bot/
 ├── src/
-│   ├── ui/                    # 🎨 User interfaces
-│   │   ├── simple_interface.py    # Main Gradio interface
+│   ├── main_ui.py             # 🎨 Main Gradio interface
+│   ├── ui/                    # 🎨 UI components and assets
+│   │   ├── style.css              # Stylesheet for the main UI
 │   │   └── performance_dashboard.py # Admin dashboard
 │   ├── services/              # 🔧 Core services
 │   │   ├── document_processor.py
@@ -132,4 +131,4 @@ pip install -r requirements.txt
 
 ---
 
-**Made with ❤️ for developers who love beautiful, functional AI tools with enterprise-grade performance monitoring**
+**Made with ❤️ for developers who love beautiful,functional AI tools with enterprise-grade performance monitoring**
