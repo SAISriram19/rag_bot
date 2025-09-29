@@ -95,15 +95,15 @@ class PerformanceDashboard:
             # Header
             gr.HTML("""
             <div class="dashboard-header">
-                <h1>🚀 RAG System Performance Dashboard</h1>
-                <p>Real-time monitoring and analytics for your AI documentation system</p>
+                <h1>RAG System Performance Dashboard</h1>
+                <p>Real-time monitoring and analytics for the AI documentation system</p>
             </div>
             """)
             
             # Auto-refresh indicator
             with gr.Row():
-                refresh_status = gr.HTML("🔄 Dashboard will auto-refresh every 30 seconds")
-                manual_refresh_btn = gr.Button("🔄 Refresh Now", variant="secondary")
+                refresh_status = gr.HTML("Dashboard will auto-refresh every 30 seconds")
+                manual_refresh_btn = gr.Button("Refresh Now", variant="secondary")
             
             # Key Metrics Row
             with gr.Row():
@@ -127,27 +127,27 @@ class PerformanceDashboard:
             # Detailed Analytics
             with gr.Row():
                 with gr.Column(scale=1):
-                    gr.HTML("<h3>🔍 Top Queries</h3>")
+                    gr.HTML("<h3>Top Queries</h3>")
                     top_queries_table = gr.HTML(self._get_top_queries_html())
                 
                 with gr.Column(scale=1):
-                    gr.HTML("<h3>⚠️ Error Analysis</h3>")
+                    gr.HTML("<h3>Error Analysis</h3>")
                     error_analysis = gr.HTML(self._get_error_analysis_html())
             
             # Optimization Recommendations
             with gr.Row():
-                gr.HTML("<h3>💡 Performance Recommendations</h3>")
+                gr.HTML("<h3>Performance Recommendations</h3>")
                 recommendations = gr.HTML(self._get_recommendations_html())
             
             # System Information
             with gr.Row():
                 with gr.Column(scale=1):
-                    gr.HTML("<h3>📊 System Information</h3>")
+                    gr.HTML("<h3>System Information</h3>")
                     system_info = gr.HTML(self._get_system_info_html())
                 
                 with gr.Column(scale=1):
-                    gr.HTML("<h3>📈 Analytics Export</h3>")
-                    export_btn = gr.Button("📥 Export Analytics Report", variant="primary")
+                    gr.HTML("<h3>Analytics Export</h3>")
+                    export_btn = gr.Button("Export Analytics Report", variant="primary")
                     export_status = gr.HTML("")
             
             # Event handlers
@@ -163,7 +163,7 @@ class PerformanceDashboard:
                     self._get_error_analysis_html(),
                     self._get_recommendations_html(),
                     self._get_system_info_html(),
-                    f"🔄 Last refreshed: {datetime.now().strftime('%H:%M:%S')}"
+                    f"Last refreshed: {datetime.now().strftime('%H:%M:%S')}"
                 )
             
             def export_analytics():
@@ -175,9 +175,9 @@ class PerformanceDashboard:
                     with open(filename, 'w') as f:
                         json.dump(report, f, indent=2)
                     
-                    return f"✅ Analytics report exported to {filename}"
+                    return f"Analytics report exported to {filename}"
                 except Exception as e:
-                    return f"❌ Export failed: {str(e)}"
+                    return f"Export failed: {str(e)}"
             
             # Manual refresh
             manual_refresh_btn.click(
@@ -193,7 +193,7 @@ class PerformanceDashboard:
             # Export functionality
             export_btn.click(export_analytics, outputs=[export_status])
             
-            # Auto-refresh (would need to be implemented with JavaScript in a real deployment)
+            # Auto-refresh
             dashboard.load(
                 refresh_dashboard,
                 outputs=[
@@ -209,30 +209,22 @@ class PerformanceDashboard:
     def _get_system_health_html(self) -> str:
         """Generate system health status HTML."""
         try:
-            # Get current metrics from performance monitor
             current_metrics = performance_monitor.get_current_metrics()
-            
-            # Determine overall health
             health_score = self._calculate_health_score(current_metrics)
             
             if health_score >= 0.8:
                 status_class = "status-good"
-                status_icon = "🟢"
                 status_text = "Excellent"
             elif health_score >= 0.6:
                 status_class = "status-warning"
-                status_icon = "🟡"
                 status_text = "Good"
             else:
                 status_class = "status-error"
-                status_icon = "🔴"
                 status_text = "Needs Attention"
             
             return f"""
             <div class="metric-card">
-                <div class="metric-value {status_class}">
-                    {status_icon} {status_text}
-                </div>
+                <div class="metric-value {status_class}">{status_text}</div>
                 <div class="metric-label">System Health</div>
                 <div style="margin-top: 1rem; font-size: 0.875rem;">
                     <div>Health Score: {health_score:.1%}</div>
@@ -244,7 +236,7 @@ class PerformanceDashboard:
         except Exception as e:
             return f"""
             <div class="metric-card">
-                <div class="metric-value status-error">🔴 Error</div>
+                <div class="metric-value status-error">Error</div>
                 <div class="metric-label">System Health</div>
                 <div style="margin-top: 1rem; font-size: 0.875rem;">
                     Error loading health data: {str(e)}
@@ -255,7 +247,7 @@ class PerformanceDashboard:
     def _get_performance_metrics_html(self) -> str:
         """Generate performance metrics HTML."""
         try:
-            usage_analytics = performance_analytics.get_usage_analytics(1)  # Last 24 hours
+            usage_analytics = performance_analytics.get_usage_analytics(1)
             
             return f"""
             <div class="metric-card">
@@ -282,7 +274,7 @@ class PerformanceDashboard:
     def _get_usage_stats_html(self) -> str:
         """Generate usage statistics HTML."""
         try:
-            usage_analytics = performance_analytics.get_usage_analytics(7)  # Last 7 days
+            usage_analytics = performance_analytics.get_usage_analytics(7)
             
             return f"""
             <div class="metric-card">
@@ -311,14 +303,12 @@ class PerformanceDashboard:
         try:
             trends = performance_analytics.get_performance_trends(7)
             
-            # Create subplot with secondary y-axis
             fig = make_subplots(
                 rows=2, cols=1,
                 subplot_titles=('Response Time Trend', 'Success Rate Trend'),
                 vertical_spacing=0.1
             )
             
-            # Response time trend
             if trends.get("response_time"):
                 dates, times = zip(*trends["response_time"])
                 fig.add_trace(
@@ -326,7 +316,6 @@ class PerformanceDashboard:
                     row=1, col=1
                 )
             
-            # Success rate trend
             if trends.get("success_rate"):
                 dates, rates = zip(*trends["success_rate"])
                 fig.add_trace(
@@ -343,7 +332,6 @@ class PerformanceDashboard:
             return fig
             
         except Exception as e:
-            # Return empty chart on error
             fig = go.Figure()
             fig.add_annotation(
                 text=f"Error loading chart: {str(e)}",
@@ -355,8 +343,6 @@ class PerformanceDashboard:
     def _create_model_usage_chart(self):
         """Create model usage distribution chart."""
         try:
-            # This would need to be implemented based on actual model usage data
-            # For now, return a placeholder
             fig = go.Figure(data=[
                 go.Pie(labels=['llama3.2:1b', 'llama3:latest'], values=[70, 30])
             ])
@@ -405,7 +391,7 @@ class PerformanceDashboard:
             error_analysis = performance_analytics.get_error_analysis(7)
             
             if not error_analysis.get("error_types"):
-                return "<div class='metric-card'>No errors detected in the last 7 days ✅</div>"
+                return "<div class='metric-card'>No errors detected in the last 7 days.</div>"
             
             html = "<div class='metric-card'>"
             html += "<h4>Common Errors:</h4>"
@@ -427,22 +413,20 @@ class PerformanceDashboard:
     def _get_recommendations_html(self) -> str:
         """Generate optimization recommendations HTML."""
         try:
-            # Get current metrics and generate recommendations
             current_metrics = performance_monitor.get_current_metrics()
             recommendations = performance_optimizer.analyze_performance_metrics(current_metrics)
             
             if not recommendations:
-                return "<div class='metric-card'>🎉 No optimization recommendations - system is performing well!</div>"
+                return "<div class='metric-card'>No optimization recommendations - system is performing well.</div>"
             
             html = ""
-            for rec in recommendations[:3]:  # Show top 3 recommendations
+            for rec in recommendations[:3]:
                 priority_class = f"recommendation-{rec.priority}"
-                priority_icon = {"high": "🔴", "medium": "🟡", "low": "🟢"}[rec.priority]
                 
                 html += f"""
                 <div class="recommendation-card {priority_class}">
                     <div style="font-weight: 600; margin-bottom: 0.5rem;">
-                        {priority_icon} {rec.component}: {rec.issue}
+                        {rec.component}: {rec.issue}
                     </div>
                     <div style="margin-bottom: 0.5rem;">
                         <strong>Recommendation:</strong> {rec.recommendation}
@@ -490,7 +474,6 @@ class PerformanceDashboard:
         try:
             score = 1.0
             
-            # Response time factor
             avg_response_time = metrics.get('avg_response_time', 0)
             if avg_response_time > 30:
                 score -= 0.4
@@ -499,24 +482,22 @@ class PerformanceDashboard:
             elif avg_response_time > 5:
                 score -= 0.1
             
-            # Success rate factor
             success_rate = metrics.get('success_rate', 1.0)
             if success_rate < 0.8:
                 score -= 0.3
             elif success_rate < 0.9:
                 score -= 0.1
             
-            # Memory usage factor
             memory_usage = metrics.get('memory_usage_mb', 0)
-            if memory_usage > 2000:  # 2GB
+            if memory_usage > 2000:
                 score -= 0.2
-            elif memory_usage > 1000:  # 1GB
+            elif memory_usage > 1000:
                 score -= 0.1
             
             return max(0.0, score)
             
         except Exception:
-            return 0.5  # Default to moderate health on error
+            return 0.5
     
     def _get_uptime(self) -> str:
         """Get system uptime string."""
@@ -542,7 +523,7 @@ def create_performance_dashboard():
 
 def main():
     """Launch the performance dashboard."""
-    print("🚀 Launching RAG Performance Dashboard...")
+    print("Launching RAG Performance Dashboard...")
     
     dashboard = create_performance_dashboard()
     

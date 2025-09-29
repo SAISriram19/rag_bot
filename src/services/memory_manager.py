@@ -258,13 +258,13 @@ class MemoryManager:
             recent_exchanges = self.conversation_history[-max_exchanges:]
             
             summary_parts = []
-            summary_parts.append(f"📊 **Conversation Summary** ({total_exchanges} total exchanges)")
+            summary_parts.append(f"**Conversation Summary** ({total_exchanges} total exchanges)")
             summary_parts.append("")
             
             # Add memory usage info
             memory_info = self.get_memory_summary()
-            summary_parts.append(f"💾 **Memory Usage:** {memory_info.get('estimated_tokens', 0)} tokens")
-            summary_parts.append(f"📈 **Buffer Limit:** {memory_info.get('memory_buffer_limit', 0)} tokens")
+            summary_parts.append(f"**Memory Usage:** {memory_info.get('estimated_tokens', 0)} tokens")
+            summary_parts.append(f"**Buffer Limit:** {memory_info.get('memory_buffer_limit', 0)} tokens")
             summary_parts.append("")
             
             # Add recent exchanges summary
