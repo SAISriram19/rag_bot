@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Beautiful Technical Documentation RAG Bot
-A modern, clean interface for document-based AI assistance
+Technical Documentation RAG Bot
+An interface for document-based AI assistance.
 """
 
 import gradio as gr
@@ -17,18 +17,18 @@ from typing import List, Tuple, Optional, Dict, Any
 
 # Import core services
 try:
-    from services.document_processor import DocumentProcessor, ProcessingStatus
-    from services.query_handler import QueryHandler
-    from services.vector_store_manager import VectorStoreManager
-    from services.embedding_generator import EmbeddingGenerator
-    from services.llm_manager import LLMManager
-    from services.memory_manager import MemoryManager
-    from services.retriever import Retriever
-    from services.response_generator import ResponseGenerator
-    from services.model_manager import ModelManager
-    from services.logging_config import get_logging_manager
-    from models.data_models import QueryResponse
-    from config import AppConfig
+    from .services.document_processor import DocumentProcessor, ProcessingStatus
+    from .services.query_handler import QueryHandler
+    from .services.vector_store_manager import VectorStoreManager
+    from .services.embedding_generator import EmbeddingGenerator
+    from .services.llm_manager import LLMManager
+    from .services.memory_manager import MemoryManager
+    from .services.retriever import Retriever
+    from .services.response_generator import ResponseGenerator
+    from .services.model_manager import ModelManager
+    from .services.logging_config import get_logging_manager
+    from .models.data_models import QueryResponse
+    from .config import AppConfig
 except ImportError as e:
     logging.basicConfig(level=logging.INFO)
     logging.error(f"Import error: {e}")
@@ -41,7 +41,7 @@ logging_manager = get_logging_manager()
 
 
 class RAGBotApp:
-    """Main RAG Bot Application with beautiful UI"""
+    """Main RAG Bot Application"""
     
     def __init__(self):
         """Initialize the RAG Bot application"""
@@ -89,29 +89,29 @@ class RAGBotApp:
             if self.llm_available:
                 try:
                     models = self.model_manager.get_available_models()
-                    model_status = f"✅ {len(models)} models available"
+                    model_status = f"{len(models)} models available"
                 except:
-                    model_status = "⚠️ LLM connection issues"
+                    model_status = "LLM connection issues"
             else:
-                model_status = "❌ LLM not available"
+                model_status = "LLM not available"
             
             status = f"""
-            📊 **System Status**
+            **System Status**
             
-            • **Documents**: {doc_count} processed
-            • **Vector Store**: {'✅ Ready' if doc_count > 0 else '📝 Empty'}
-            • **LLM Models**: {model_status}
-            • **Memory**: ✅ Active
+            - **Documents**: {doc_count} processed
+            - **Vector Store**: {'Ready' if doc_count > 0 else 'Empty'}
+            - **LLM Models**: {model_status}
+            - **Memory**: Active
             """
             
             return status.strip()
         except Exception as e:
-            return f"❌ System error: {str(e)}"
+            return f"System error: {str(e)}"
     
     def upload_documents(self, files) -> str:
         """Process uploaded documents"""
         if not files:
-            return "❌ No files selected"
+            return "No files selected"
         
         results = []
         success_count = 0
@@ -126,7 +126,7 @@ class RAGBotApp:
                 
                 if result.status == ProcessingStatus.COMPLETED:
                     success_count += 1
-                    results.append(f"✅ **{filename}**: {result.chunks_created} chunks created")
+                    results.append(f"**{filename}**: {result.chunks_created} chunks created")
                     self.uploaded_files.append({
                         'name': filename,
                         'path': file_path,
@@ -134,20 +134,20 @@ class RAGBotApp:
                         'timestamp': datetime.now().strftime('%H:%M:%S')
                     })
                 else:
-                    results.append(f"❌ **{filename}**: {result.error_message or 'Processing failed'}")
+                    results.append(f"**{filename}**: {result.error_message or 'Processing failed'}")
                     
             except Exception as e:
-                results.append(f"❌ **{Path(file_path).name}**: {str(e)}")
+                results.append(f"**{Path(file_path).name}**: {str(e)}")
         
-        summary = f"📁 **Upload Complete**: {success_count}/{len(files)} files processed successfully\n\n"
+        summary = f"**Upload Complete**: {success_count}/{len(files)} files processed successfully\n\n"
         return summary + "\n".join(results)
     
     def get_file_list(self) -> str:
         """Get list of uploaded files"""
         if not self.uploaded_files:
-            return "📝 No files uploaded yet"
+            return "No files uploaded yet"
         
-        file_list = ["📚 **Uploaded Documents**\n"]
+        file_list = ["**Uploaded Documents**\n"]
         for i, file_info in enumerate(self.uploaded_files[-10:], 1):  # Show last 10 files
             file_list.append(f"{i}. **{file_info['name']}** - {file_info['chunks']} chunks ({file_info['timestamp']})")
         
@@ -170,9 +170,9 @@ class RAGBotApp:
                 doc_count = collection_info.get('count', 0)
                 
                 if doc_count == 0:
-                    response = "📝 Please upload some documents first! I need documents to answer your questions."
+                    response = "Please upload documents to begin."
                 else:
-                    response = f"📚 I can see you have {doc_count} document chunks available. However, the LLM service is not available for generating responses. Please ensure Ollama is running with a model loaded."
+                    response = f"{doc_count} document chunks are available, but the LLM service is not. Please ensure Ollama is running and a model is loaded."
             else:
                 # Full RAG response
                 query_response = self.query_handler.handle_query(query)
@@ -181,8 +181,8 @@ class RAGBotApp:
                 response = query_response.answer
                 
                 if query_response.sources:
-                    response += "\n\n📖 **Sources:**\n"
-                    source_context_parts = ["**📚 Relevant Sources:**\n\n"]
+                    response += "\n\n**Sources:**\n"
+                    source_context_parts = ["**Relevant Sources:**\n\n"]
                     for i, source in enumerate(query_response.sources[:3], 1):
                         source_name = source.metadata.get('filename', 'Unknown')
                         response += f"{i}. {source_name}\n"
@@ -196,10 +196,10 @@ class RAGBotApp:
                     source_context = "".join(source_context_parts)
                 
                 # Add confidence and timing info
-                response += f"\n⚡ *Response time: {query_response.processing_time:.2f}s*"
+                response += f"\n*Response time: {query_response.processing_time:.2f}s*"
                 
         except Exception as e:
-            response = f"❌ Error processing query: {str(e)}"
+            response = f"Error processing query: {str(e)}"
         
         # Update history with response
         history[-1][1] = response
@@ -232,14 +232,14 @@ class RAGBotApp:
             if self.llm_available and model_name != "No models available":
                 # Update the model in LLM manager
                 self.llm_manager.current_model = model_name
-                return f"✅ Switched to model: {model_name}"
+                return f"Switched to model: {model_name}"
             else:
-                return "❌ Cannot switch model - LLM not available"
+                return "Cannot switch model - LLM not available"
         except Exception as e:
-            return f"❌ Error switching model: {str(e)}"
+            return f"Error switching model: {str(e)}"
     
     def create_interface(self) -> gr.Blocks:
-        """Create the beautiful Gradio interface"""
+        """Create the Gradio interface"""
         
         # Load CSS from file
         css_path = Path(__file__).parent / "ui/style.css"
@@ -253,7 +253,7 @@ class RAGBotApp:
         # Create the interface
         with gr.Blocks(
             css=css,
-            title="🤖 RAG Bot - Document AI Assistant",
+            title="RAG Bot - Document AI Assistant",
             theme=gr.themes.Soft(
                 primary_hue="blue",
                 secondary_hue="purple",
@@ -264,54 +264,54 @@ class RAGBotApp:
             # Header
             with gr.Row(elem_classes=["main-header"]):
                 gr.Markdown("""
-                # 🤖 Technical Documentation RAG Bot
-                ### Your AI-powered document assistant
+                # Technical Documentation RAG Bot
+                ### AI-powered document assistant
                 
-                Upload your technical documents and ask questions about them using advanced AI models.
+                Upload your technical documents and ask questions about them.
                 """)
             
             # Main content area
             with gr.Row():
                 # Left column - Chat interface
                 with gr.Column(scale=2, elem_classes=["chat-container"]):
-                    gr.Markdown("## 💬 Chat with your documents")
+                    gr.Markdown("## Chat with your documents")
                     
                     chatbot = gr.Chatbot(
                         label="Conversation",
                         height=500,
                         show_label=False,
-                        avatar_images=("👤", "🤖"),
+                        avatar_images=(None, None),
                         bubble_full_width=False
                     )
                     
                     with gr.Row():
                         query_input = gr.Textbox(
-                            placeholder="Ask me anything about your documents...",
+                            placeholder="Ask a question about your documents...",
                             label="Your question",
                             lines=2,
                             scale=4,
                             show_label=False
                         )
-                        send_btn = gr.Button("Send 🚀", variant="primary", scale=1)
+                        send_btn = gr.Button("Send", variant="primary", scale=1)
                     
                     with gr.Row():
-                        clear_btn = gr.Button("Clear Chat 🗑️", variant="secondary")
-                        example_btn = gr.Button("Example Questions 💡", variant="secondary")
+                        clear_btn = gr.Button("Clear Chat", variant="secondary")
+                        example_btn = gr.Button("Example Questions", variant="secondary")
                 
                 # Right column - Controls and status
                 with gr.Column(scale=1):
                     # System status
                     with gr.Group(elem_classes=["status-panel"]):
-                        gr.Markdown("## 📊 System Status")
+                        gr.Markdown("## System Status")
                         status_display = gr.Markdown(
                             value=self.get_system_status(),
                             label="Status"
                         )
-                        refresh_status_btn = gr.Button("Refresh Status 🔄", variant="secondary")
+                        refresh_status_btn = gr.Button("Refresh Status", variant="secondary")
                     
                     # File upload section
                     with gr.Group(elem_classes=["upload-section"]):
-                        gr.Markdown("## 📁 Upload Documents")
+                        gr.Markdown("## Upload Documents")
                         
                         file_upload = gr.File(
                             label="Select files",
@@ -320,7 +320,7 @@ class RAGBotApp:
                             height=120
                         )
                         
-                        upload_btn = gr.Button("Process Files 📤", variant="primary")
+                        upload_btn = gr.Button("Process Files", variant="primary")
                         upload_status = gr.Markdown(
                             value="Ready to upload documents",
                             label="Upload Status"
@@ -328,7 +328,7 @@ class RAGBotApp:
                     
                     # Model selection
                     with gr.Group(elem_classes=["upload-section"]):
-                        gr.Markdown("## 🤖 AI Model")
+                        gr.Markdown("## AI Model")
                         
                         model_dropdown = gr.Dropdown(
                             choices=self.get_available_models(),
@@ -337,12 +337,12 @@ class RAGBotApp:
                             interactive=True
                         )
                         
-                        switch_model_btn = gr.Button("Switch Model 🔄", variant="secondary")
+                        switch_model_btn = gr.Button("Switch Model", variant="secondary")
                         model_status = gr.Markdown(value="Model ready")
                     
                     # File list
                     with gr.Group(elem_classes=["upload-section"]):
-                        gr.Markdown("## 📚 Document Library")
+                        gr.Markdown("## Document Library")
                         file_list_display = gr.Markdown(
                             value=self.get_file_list(),
                             label="Uploaded Files"
@@ -350,7 +350,7 @@ class RAGBotApp:
 
                     # Source context
                     with gr.Group(elem_classes=["upload-section"]):
-                        gr.Markdown("## 📚 Source Context")
+                        gr.Markdown("## Source Context")
                         source_context_display = gr.Markdown(
                             value="Source context will appear here.",
                             label="Source Context"
@@ -359,7 +359,7 @@ class RAGBotApp:
             # Example questions section (initially hidden)
             with gr.Row(visible=False) as examples_row:
                 with gr.Column():
-                    gr.Markdown("## 💡 Example Questions")
+                    gr.Markdown("## Example Questions")
                     example_questions = [
                         "What is this document about?",
                         "Can you summarize the main points?",
@@ -370,7 +370,7 @@ class RAGBotApp:
                     ]
                     
                     for question in example_questions:
-                        example_q_btn = gr.Button(f"❓ {question}", variant="secondary")
+                        example_q_btn = gr.Button(question, variant="secondary")
                         example_q_btn.click(
                             lambda q=question: (q, ""),
                             outputs=[query_input, gr.Textbox()]
@@ -429,18 +429,17 @@ class RAGBotApp:
                 outputs=[status_display]
             )
             
-            # Auto-refresh status every 30 seconds
+            # Load system status on startup
             interface.load(
                 lambda: self.get_system_status(),
-                outputs=[status_display],
-                every=30
+                outputs=[status_display]
             )
         
         return interface
 
 def main():
     """Main function to run the RAG Bot"""
-    logger.info("🚀 Starting Beautiful RAG Bot...")
+    logger.info("Starting RAG Bot...")
     
     try:
         # Initialize the app
@@ -449,10 +448,9 @@ def main():
         # Create and launch the interface
         interface = app.create_interface()
         
-        logger.info("✅ RAG Bot initialized successfully!")
-        logger.info("🌐 Launching web interface...")
-        logger.info("📍 URL: http://localhost:7860")
-        logger.info("⏹️ Press Ctrl+C to stop")
+        logger.info("RAG Bot initialized successfully.")
+        logger.info("Launching web interface at http://localhost:7860")
+        logger.info("Press Ctrl+C to stop.")
         
         interface.launch(
             server_name="0.0.0.0",
@@ -460,17 +458,16 @@ def main():
             share=False,
             inbrowser=True,
             show_error=True,
-            show_tips=True,
             height=800,
             favicon_path=None
         )
         
     except KeyboardInterrupt:
-        logger.info("\n👋 Shutting down RAG Bot...")
+        logger.info("Shutting down RAG Bot.")
     except Exception as e:
-        logger.error(f"❌ Error starting RAG Bot: {e}", exc_info=True)
-        logger.error("💡 Make sure all dependencies are installed: pip install -r requirements.txt")
-        logger.error("💡 Ensure Ollama is running: ollama serve")
+        logger.error(f"Error starting RAG Bot: {e}", exc_info=True)
+        logger.error("Please ensure all dependencies are installed: pip install -r requirements.txt")
+        logger.error("Please ensure Ollama is running: ollama serve")
 
 if __name__ == "__main__":
     main()
